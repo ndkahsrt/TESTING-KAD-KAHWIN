@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Undangan Perkahwinan Atikah &amp; Nizam</title>
+<meta name="description" content="Jemputan Majlis Perkahwinan Atikah &amp; Nizam">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Undangan Perkahwinan Atikah &amp; Nizam">
+<meta property="og:description" content="Jemputan Majlis Perkahwinan Atikah &amp; Nizam">
+<meta property="og:image" content="https://walimatulurus-atikah-nizam.netlify.app/preview.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:site_name" content="Undangan Perkahwinan Atikah &amp; Nizam">
+<meta property="og:url" content="https://walimatulurus-atikah-nizam.netlify.app/">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Undangan Perkahwinan Atikah &amp; Nizam">
+<meta name="twitter:description" content="Jemputan Majlis Perkahwinan Atikah &amp; Nizam">
+<meta name="twitter:image" content="https://walimatulurus-atikah-nizam.netlify.app/preview.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-btn: #73212a;   /* warna button */
+    --gold: #d9c396;
+  }
+
+  *{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body{
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: transparent;
+    font-family: 'Lora', serif;
+  }
+
+  /* ---------- Outer stage (letterbox holder) ---------- */
+  #stage{
+    position: relative;
+    height: 100dvh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+  }
+
+  /* ---------- Fixed 1080x1920 canvas, locked aspect, centered ---------- */
+  #canvas{
+    position: relative;
+    width: min(100vw, 100dvh * 0.5625);   /* 1080 / 1920 */
+    height: min(100dvh, 100vw * 1.7778);  /* 1920 / 1080 */
+    overflow: hidden;
+    box-shadow: 0 0 80px rgba(0,0,0,0.4);
+  }
+
+  #bg{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 1.8s ease;
+  }
+  #bg.loaded{ opacity: 1; }
+
+  #vignette{
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at 50% 45%, rgba(12,18,38,0) 42%, rgba(12,18,38,0.22) 100%),
+      linear-gradient(to bottom, rgba(12,18,38,0.22) 0%, rgba(12,18,38,0) 14%, rgba(12,18,38,0) 68%, rgba(12,18,38,0.18) 100%);
+  }
+
+  /* ---------- Sparkles ---------- */
+  #sparkle-layer{
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .sparkle{
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  /* ---------- CTA pill button ----------
+     Canvas 1080x1920. Huruf Y & H berakhir pada y=1070px.
+     0.5 inch (48px @96dpi) di bawahnya + turun 4.5 inch (432px) => bahagian atas button pada y=1550px
+     1550 / 1920 = 80.73%                                                   */
+  #cta-btn{
+    all: unset;
+    position: absolute;
+    left: 50%;
+    top: 80.73%;
+    z-index: 6;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--pink-btn);
+    border-radius: 999px;
+    padding: 3.4% 9%;
+    cursor: pointer;
+    box-shadow: 0 10px 26px rgba(70,15,22,0.38);
+    opacity: 0;
+    transform: translate(-50%, 14px);
+    animation: fadeInUp 1.3s ease forwards;
+    animation-delay: 1.2s;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+  #cta-btn span{
+    color: #ffffff;
+    font-family: 'Lora', serif;
+    font-weight: 400;
+    font-size: clamp(13px, 2.9vw, 19px);
+    letter-spacing: 0.14em;
+    text-indent: 0.14em;
+    white-space: nowrap;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.25);
+  }
+  #cta-btn:hover{
+    transform: translate(-50%, -2px) scale(1.015);
+    box-shadow: 0 12px 30px rgba(70,15,22,0.45);
+  }
+  #cta-btn.pressed{
+    transform: translate(-50%, 0) scale(0.95);
+    transition: transform 0.18s ease;
+  }
+  @keyframes fadeInUp{
+    from{ opacity: 0; transform: translate(-50%, 14px); }
+    to{ opacity: 1; transform: translate(-50%, 0); }
+  }
+
+  /* ---------- Loading veil ---------- */
+  #veil{
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 1s ease;
+  }
+  #veil.hide{ opacity: 0; pointer-events: none; }
+  #veil-mark{
+    font-family: 'Lora', serif;
+    font-style: italic;
+    color: var(--gold);
+    font-size: 22px;
+    letter-spacing: 0.3em;
+    opacity: 0.7;
+    animation: veilPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes veilPulse{
+    0%,100%{ opacity: 0.35; }
+    50%{ opacity: 0.85; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    #cta-btn{ animation-duration: 0.01ms !important; animation-delay: 0s !important; }
+    .sparkle{ animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="veil"><div id="veil-mark">A &amp; N</div></div>
+
+<div id="stage">
+  <div id="canvas">
+    <video id="bg" src="video-cover.mp4" autoplay muted playsinline preload="auto" disablepictureinpicture></video>
+    <div id="vignette"></div>
+    <div id="sparkle-layer"></div>
+
+    <button id="cta-btn" aria-label="Klik untuk buka jemputan">
+      <span>Klik Sini Untuk Buka</span>
+    </button>
+  </div>
+</div>
+
+<audio id="bg-music" src="music.mp3" loop preload="auto" playsinline></audio>
+
+<script>
+(function(){
+  "use strict";
+
+  var bg = document.getElementById('bg');
+  var veil = document.getElementById('veil');
+
+  function revealBg(){
+    bg.classList.add('loaded');
+    setTimeout(function(){ veil.classList.add('hide'); }, 250);
+  }
+  if (bg.readyState >= 2){
+    revealBg();
+  } else {
+    bg.addEventListener('loadeddata', revealBg);
+    bg.addEventListener('error', revealBg);
+    setTimeout(revealBg, 2200);
+  }
+
+  /* pastikan video auto-play (sesetengah browser perlu dipanggil manual) */
+  var vp = bg.play();
+  if (vp !== undefined){ vp.catch(function(){}); }
+
+  /* ---------------- Sparkles ---------------- */
+  var layer = document.getElementById('sparkle-layer');
+  var sparkleCount = window.innerWidth < 480 ? 20 : 30;
+  var colors = ['rgba(255,255,255,0.9)', 'rgba(255,255,255,0.6)', 'rgba(217,195,150,0.85)', 'rgba(217,195,150,0.5)'];
+
+  function spawnSparkle(){
+    var el = document.createElement('div');
+    el.className = 'sparkle';
+    var size = (Math.random() * 2.2 + 1).toFixed(2);
+    var color = colors[Math.floor(Math.random() * colors.length)];
+    var left = Math.random() * 100;
+    var top = Math.random() * 100;
+    var duration = (Math.random() * 3 + 2.8).toFixed(2);
+    var delay = (Math.random() * 2).toFixed(2);
+
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    el.style.left = left + '%';
+    el.style.top = top + '%';
+    el.style.background = color;
+    el.style.boxShadow = '0 0 ' + (size * 3) + 'px ' + color;
+    el.style.opacity = '0';
+    el.style.animation = 'sparkleTwinkle ' + duration + 's ease-in-out ' + delay + 's infinite';
+
+    layer.appendChild(el);
+  }
+
+  var styleSheet = document.createElement('style');
+  styleSheet.textContent =
+    '@keyframes sparkleTwinkle{' +
+    '0%{opacity:0; transform:scale(0.4);}' +
+    '45%{opacity:1; transform:scale(1);}' +
+    '100%{opacity:0; transform:scale(0.4);}' +
+    '}';
+  document.head.appendChild(styleSheet);
+
+  for (var i = 0; i < sparkleCount; i++){ spawnSparkle(); }
+
+  /* ---------------- Click to open ---------------- */
+  var ctaBtn = document.getElementById('cta-btn');
+  var music = document.getElementById('bg-music');
+  var opened = false;
+  var DESTINATION = 'https://aterlierdhia.my.canva.site/atikah-nizam';
+
+  function openInvitation(){
+    if (opened) return;
+    opened = true;
+
+    ctaBtn.classList.add('pressed');
+
+    music.currentTime = 0;
+    var playPromise = music.play();
+    if (playPromise !== undefined){
+      playPromise.catch(function(){ /* handled by user gesture already firing this */ });
+    }
+
+    window.setTimeout(function(){
+      window.open(DESTINATION, '_blank', 'noopener');
+      ctaBtn.classList.remove('pressed');
+    }, 260);
+  }
+
+  ctaBtn.addEventListener('click', openInvitation);
+  ctaBtn.addEventListener('touchend', function(e){ e.preventDefault(); openInvitation(); }, { passive: false });
+
+})();
+</script>
+</body>
+</html>
